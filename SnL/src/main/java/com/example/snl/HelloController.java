@@ -1,10 +1,10 @@
 package com.example.snl;
 
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.geometry.Bounds;
-import javafx.geometry.Point2D;
-import javafx.scene.Node;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -12,10 +12,12 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Box;
+import javafx.stage.Stage;
 
-
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.Set;
 
 public class HelloController {
 
@@ -49,14 +51,10 @@ public class HelloController {
 
     Piece pic1;
 
-
-
     public void tester()
     {
 
     }
-
-
 
     public void OnClickingDice(MouseEvent mouseEvent) {
 //        int count =9;
@@ -105,7 +103,10 @@ public class HelloController {
 
 }
 
-class gameBoard{
+class gameBoard extends  Thread{
+
+
+
     Dice dice;
 
     Label num_label;
@@ -171,6 +172,18 @@ class gameBoard{
 
     }
 
+    public void set_Position_of_Player(int position)
+    {
+        if(curren_player == 1)
+        {
+            player1.getMy_pic().setPosition(position);
+        }
+        else if(curren_player == 2)
+        {
+            player2.getMy_pic().setPosition(position);
+        }
+    }
+
     public void diceAnimation()
     {
 
@@ -185,6 +198,7 @@ class gameBoard{
 
     public void moveThePlayer()
     {
+        System.out.println("--------------------------------------------------------");
         //8+6 = 14 m// 14/10 == 1 // 30-14 = 16
         //19 + 5 = 24 // 24/10 == 2 // 23
 
@@ -197,11 +211,39 @@ class gameBoard{
         int dice_num = rollTheDice();
 
         System.out.println("This is dice_num: " + dice_num);
-        diceAnimation();
+//        diceAnimation();
+
+        int curr_position = -1;
+        if(curren_player == 1)
+        {
+
+            curr_position =  player1.getMy_pic().getPosition();
+        }
+        else if(curren_player == 2)
+        {
+
+            curr_position =  player2.getMy_pic().getPosition();
+        }
+
+        System.out.println("this is current postition: " + curr_position);
+        if(curr_position == -1)
+        {
+            if(dice_num == 1)
+            {
+                moveTheImage(0 , 9);
+                set_Position_of_Player(1);
+                swap_players(curren_player);
 
 
-        int curr_position = player1.getMy_pic().getPosition();
-        System.out.println("current position: " + curr_position);
+                return;
+            }
+            else{
+                swap_players(curren_player);
+                return;
+            }
+        }
+
+        System.out.println("current position after swapping: " + curr_position);
 
         //the position on the player will we according to the game board
 
@@ -215,34 +257,57 @@ class gameBoard{
         //now we have to find the row and column index to add the image there from this 16
         int new_position = curr_position + dice_num;  // 8 + 6 = 14 (according to the board which is 16 according to the grid)
 
+        if(new_position > 100)
+        {
+            swap_players(curren_player);
+            return;
+        }
+        if(new_position == 100)
+        {
+            set_Position_of_Player(new_position);
+            int[] coordinates =  getRowsAndColumn(new_position); //so this will take 16 and return (6 column, 8 row)
+
+            System.out.println("Y : " + coordinates[0] + "  X: "+ coordinates[1] );
+            //now we will add the image at this coordinates using move the image
+            moveTheImage(coordinates[1], coordinates[0]);
+
+            dice.getBt().setDisable(true);
+        }
+
+        System.out.println("this is new_position: " + new_position);
 
         //******************// we will have to check the corner cases
-        if(curren_player == 1)
-        {
-            player1.getMy_pic().setPosition(new_position);
-        }else if(curren_player == 2)
-        {
-            player1.getMy_pic().setPosition(new_position);
-        }
+        set_Position_of_Player(new_position);
+
 
         int[] coordinates =  getRowsAndColumn(new_position); //so this will take 16 and return (6 column, 8 row)
 
+        System.out.println("Y : " + coordinates[0] + "  X: "+ coordinates[1] );
         //now we will add the image at this coordinates using move the image
-        moveTheImage(coordinates[0], coordinates[1]);
+
+
+
+        moveTheImage(coordinates[1], coordinates[0]);
+
+
+
+
         //so now the image is at 16
         //16 = (6 col, 8 row)
 
         //now we will check if it's a snakes mouth or ladder end
 
-        int new_grid_position = boradToGrid(new_position);
-        int went_down =  nagini.isHead( new_grid_position );
+//        int new_grid_position = boradToGrid(new_position); //
+        int went_down =  nagini.isHead( new_position ); //
+
+
         int went_up = -1;
 //        went_down == -1
 
 
         if(went_down == -1) {
             //when the new position is not the neck
-             went_up = ladder.isLowerEnd(new_grid_position);
+             went_up = ladder.isLowerEnd(new_position);
 
             if (went_up == -1) {
                 //when the new position is also not the ladder
@@ -252,6 +317,15 @@ class gameBoard{
             }
         }
 
+//        try {
+//            Thread.sleep( 5000);
+//
+//        } catch (InterruptedException ie) {
+//            System.out.println("here");
+//            Thread.currentThread().interrupt();
+//        }
+
+        System.out.println("did you reach here????????????????");
         //if either snake or ladder was there at the new position
         //Now isHead() and isLoweEnd() functions will decide the fate of our token
 
@@ -273,7 +347,6 @@ class gameBoard{
             new_position_after = went_up;
         }
 
-        int new_board_position_after = gridToBoard(new_position_after);
 
 
 
@@ -281,18 +354,13 @@ class gameBoard{
 
 //        int new_board_position_after = curr_position + dice_num;  // 8 + 6 = 14 (according to the board which is 16 according to the grid)
 
-        if(curren_player == 1)
-        {
-            player1.getMy_pic().setPosition(new_board_position_after);
-        }else if(curren_player == 2)
-        {
-            player1.getMy_pic().setPosition(new_board_position_after);
-        }
+        set_Position_of_Player(new_position_after);
 
-        int[] new_coordinates =  getRowsAndColumn(new_board_position_after); //so this will take 16 and return (6 column, 8 row)
+
+        int[] new_coordinates =  getRowsAndColumn(new_position_after); //so this will take 16 and return (6 column, 8 row)
 
         //now we will add the image at this coordinates using move the image
-        moveTheImage(new_coordinates[0], new_coordinates[1]);
+        moveTheImage(new_coordinates[1], new_coordinates[0]);
         swap_players(curren_player);
 
         //after doing snake or ladder there wont be another snake or ladder so now we just updated the position
@@ -316,42 +384,104 @@ class gameBoard{
 //            }
 //        }
 
-
-
-
-
-
-
-
-
-    }
-
-    public int[] getRowsAndColumn(int updated_position)
-    {
-        int position_acc_to_gird = boradToGrid(updated_position);
-
-        int[] a = new int[2];
-        return a;
     }
 
     public int gridToBoard(int grid_position)
     {
+        int r = grid_position/10;
+        int c = grid_position%10;
+        int board_pos=-1;
+        if(r%2==0){
+            board_pos = grid_position+1;
+        }
+        else if(r%2==1 && c!=0){
+            int tot = 2*(r*10) + 10;
+            board_pos = tot-grid_position;
+        }
+        else if(r%2==1 && c==0){
+            int tot = (r*10) + (r+1)*10;
+            board_pos = tot-grid_position;
+        }
         //this will take 16 and return 14
         //algo
-        return 0;
+        return board_pos;
     }
 
-    public int boradToGrid(int dice_number)
+    public int boradToGrid(int board_position)
     {
+//        HashMap<Integer, Integer> lg = new HashMap<>();
+//        lg.put(1,1);
+
+        int r = board_position/10;
+        int c = board_position%10;
+        int grid_pos=-1;
+        if(r%2==0 && c!=0){
+            grid_pos = board_position-1;
+        }
+        else if(r%2==1 && c==0){
+            grid_pos = board_position-1;
+        }
+        else if(r%2==1 && c!=0){
+            int tot = 2*(r*10) + 10;
+            grid_pos = tot-board_position;
+        }
+        else if(r%2==0 && c==0){
+            int tot = (r*10) + (r-1)*10;
+            grid_pos = tot-board_position;
+        }
         //this will take 14 and return 16
         //update the image on screen
         //update piece position
         // onboard = 14; ongrid = 16
 
-
-
-        return -1;
+        return grid_pos;
     }
+
+    public int[] getRowsAndColumn(int updated_position)
+    {
+        int grid_pos = boradToGrid(updated_position);
+        int r= grid_pos/10;
+        int row = 9-r;
+        int col= grid_pos%10;
+
+        int[] a = new int[2];
+        a[0] = row;
+        a[1] = col;
+        return a;
+
+
+    }
+
+
+//    public int[] getRowsAndColumn(int updated_position)
+//    {
+//
+//
+//        int position_acc_to_gird = boradToGrid(updated_position);
+//
+//        //16
+//
+//        int[] a = new int[2];
+//        return a;
+//    }
+
+//    public int gridToBoard(int grid_position)
+//    {
+//        //this will take 16 and return 14
+//        //algo
+//        return 0;
+//    }
+//
+//    public int boradToGrid(int board_position)
+//    {
+//
+//        //this will take 14 and return 16
+//        //update the image on screen
+//        //update piece position
+//        // onboard = 14; ongrid = 16
+//
+//        return -1;
+//    }
 
     public void moveTheImage(int column_number, int row_number)
     {
@@ -369,6 +499,7 @@ class gameBoard{
         }
 
 
+
         System.out.println("this is image id: "+ img.getId());
         gameGrid.getChildren().remove(img);
         gameGrid.add(img, column_number, row_number);
@@ -383,14 +514,12 @@ class gameBoard{
 
 }
 
-
 class Player{
 /*
 1. id
 2. piece
 3. Turn if(1 = turn , -1 = no turn)
  */
-
     private  int id;
     private Piece my_pic;
     private int turn;
@@ -471,13 +600,45 @@ class Snake{
 1. Hashmap
 2. will check if it's a neck of a snake
  */
-    protected  HashMap<Integer, Integer> snake = new HashMap<Integer, Integer>();
+    HashMap<Integer, Integer> map;
+//    snake.put(1,2);
 
-    public int isHead( int curr_position)
+    public Snake()
     {
-        //-1 is not the head
-        //else return the updated position
+        map = new HashMap<>();
+        map.put(11,9);
+        map.put(36,14);
+        map.put(56,18);
+        map.put(43,22);
+        map.put(90,50);
+        map.put(94,53);
+        map.put(75,54);
+        map.put(96,65);
+        map.put(99,78);
+        map.put(81, 63);
 
+    }
+
+
+
+
+    public int isHead(int curr_position)
+    {
+
+        System.out.println("current head: " + curr_position);
+
+
+
+        Set<Integer> set = map.keySet();
+        for(Integer k : set)
+        {
+            if(curr_position == k)
+            {
+                int return_item = map.get(k);
+
+                return return_item;
+            }
+        }
         return  -1;
     }
 
@@ -489,12 +650,37 @@ class Ladder{
 1. Hashmap
 2. will check if it's a start of a ladder
  */
-    protected HashMap<Integer, Integer> ladder = new HashMap<Integer, Integer>();
+    private HashMap<Integer, Integer> ladder;
+    public Ladder()
+    {
+        ladder = new HashMap<>();
+        ladder.put(8,31);
+        ladder.put(4,25);
+        ladder.put(28, 46);
+        ladder.put(32,48);
+        ladder.put(21, 60);
+        ladder.put(42,80);
+        ladder.put(58,77);
+        ladder.put(52, 68);
+        ladder.put(69, 93);
+        ladder.put(84, 98);
+    }
 
     public int isLowerEnd( int curr_position)
     {
         //-1 is not the lower end
         //else return the updated position
+
+        Set<Integer> set = ladder.keySet();
+        for(Integer k : set)
+        {
+            if(curr_position == k)
+            {
+                int return_item = ladder.get(k);
+
+                return return_item;
+            }
+        }
 
         return  -1;
     }
@@ -543,5 +729,45 @@ class Dice{
     public void enableTheDice()
     {
 
+    }
+}
+
+ class PhoneBook {
+
+    private HashMap<String, String> data;
+
+    public PhoneBook()
+    {
+        data = new HashMap<String, String>();
+    }
+    public void addPhone(String name, String num)
+    {
+        data.put(name, num);
+    }
+
+
+    //a
+    public String getPhone(String name){
+        if(data.containsValue(name)){
+            return data.get(name);
+        }
+        else
+            return null;
+    }
+
+    //b
+    public void ToString(){
+        data.toString();
+    }
+
+    public static void main(String[] args) {
+
+        PhoneBook pb = new PhoneBook();
+        pb.addPhone("shlomi", "12312413yuioyuio24");
+        pb.addPhone("shlomi1", "1231345345241324");
+        pb.addPhone("shlomi2", "12312445735671324");
+        System.out.println(pb.getPhone("shlomi"));
+        System.out.println(pb.getPhone("blat"));
+        pb.ToString();
     }
 }
