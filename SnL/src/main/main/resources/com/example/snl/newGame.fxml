@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.effect.ColorAdjust?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="564.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.snl.GameStart">
+   <children>
+      <ImageView fx:id="start" fitHeight="700.0" fitWidth="564.0" pickOnBounds="true">
+         <image>
+            <Image url="@home2.jpg" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="150.0" fitWidth="367.0" layoutX="98.0" layoutY="166.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@comp.png" />
+         </image>
+         <effect>
+            <ColorAdjust brightness="-0.4" />
+         </effect>
+      </ImageView>
+      <ImageView fitHeight="150.0" fitWidth="367.0" layoutX="98.0" layoutY="385.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@online.png" />
+         </image>
+         <effect>
+            <ColorAdjust brightness="-0.5" />
+         </effect>
+      </ImageView>
+      <ImageView fitHeight="150.0" fitWidth="367.0" layoutX="98.0" layoutY="495.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@friends.png" />
+         </image>
+         <effect>
+            <ColorAdjust brightness="-0.5" />
+         </effect>
+      </ImageView>
+      <ImageView fitHeight="150.0" fitWidth="324.0" layoutX="117.0" layoutY="613.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@lucky.png" />
+         </image>
+         <effect>
+            <ColorAdjust brightness="-0.4" />
+         </effect>
+      </ImageView>
+      <ImageView fitHeight="150.0" fitWidth="367.0" layoutX="98.0" layoutY="275.0" onMouseClicked="#startTheGame" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@local.png" />
+         </image>
+         <effect>
+            <ColorAdjust />
+         </effect>
+      </ImageView>
+   </children>
+</Pane>
