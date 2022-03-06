@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.effect.ColorAdjust?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="564.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.snl.Controller2">
+   <children>
+      <ImageView fitHeight="700.0" fitWidth="775.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@scene2.png" />
+         </image>
+         <effect>
+            <ColorAdjust brightness="-0.5" />
+         </effect>
+      </ImageView>
+      <ImageView fx:id="win" fitHeight="337.0" fitWidth="349.0" layoutX="109.0" layoutY="129.0" onMouseClicked="#endTheGame" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@win2e.png" />
+         </image>
+      </ImageView>
+   </children>
+</Pane>
